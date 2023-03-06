@@ -14,6 +14,8 @@ const del = require("del");
 const rigger = require("gulp-rigger")
 const plumber = require("gulp-plumber");
 const uglify = require("gulp-uglify");
+const imagemin = require("gulp-imagemin");
+const newer = require("gulp-newer");
 const browserSync = require("browser-sync").create();
 
 // const imagemin = require("gulp-imagemin");
@@ -108,6 +110,10 @@ const libsStyles = () => {
 
 const images = () => {
     return src(path.src.img, {base: srcPath})
+    .pipe(newer(path.build.img))
+    .pipe(imagemin({
+        progressive:true
+    }))
     .pipe(dest(path.build.img))
      
 }
@@ -118,7 +124,7 @@ const fonts = () => {
 }
 
 const clean = () => {
-    return del(publicPath)
+    return del(['public/*', '!public/img'])
 }
 
 const watchFiles = () => {
@@ -138,6 +144,7 @@ const watchFiles = () => {
 exports.html = html
 exports.styles = styles
 exports.images = images
+exports.clean = clean
 exports.fonts = fonts
 exports.watchFiles = watchFiles
 exports.default = series(clean, parallel(html, scripts, fonts, images),libsScripts,libsStyles, styles, watchFiles)
